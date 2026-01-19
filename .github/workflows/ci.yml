@@ -1,0 +1,12 @@
+name: CI
+
+    steps:
+    
+      - name: Installation des dependances 
+        run: npm install
+
+      - name: Executer lint
+        run: npm run lint
+
+      - name: Executer test
+        run: npm run test
