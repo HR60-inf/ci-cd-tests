@@ -6,8 +6,9 @@ on:
       - main
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
+    name: Tests et Validation
 
     steps:
       - name: Checkout du code
@@ -17,24 +18,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Installation des dépendances
-        run: npm install
+        run: npm ci
 
-      - name: Executer lint
+      - name: Exécuter ESLint
         run: npm run lint
 
-      - name: Executer test
+      - name: Exécuter les tests
         run: npm run test
 
   deploy:
-    needs: lint  # Attend que les tests passent
+    needs: test  # Dépend du job "test"
+    if: success()  # S'exécute seulement si les tests passent
     runs-on: ubuntu-latest
+    name: Déploiement sur Render
     
     steps:
       - name: Déclencher le déploiement Render
-        run: |
-          curl -X POST \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-            -H "Content-Type: application/json"
+        uses: sws2apps/render-deployment@main
+        with:
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
+          apiKey: ${{ secrets.RENDER_API_KEY }}
