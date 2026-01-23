@@ -30,15 +30,14 @@ jobs:
         run: npm run test
 
   deploy:
+    needs: test  # Dépend du job "test"
+    if: success()  # S'exécute seulement si les tests passent
     runs-on: ubuntu-latest
+    name: Déploiement sur Render
     
     steps:
-      - name: Déployer sur Render
+      - name: Déclencher le déploiement Render
         uses: sws2apps/render-deployment@main
         with:
-          serviceId: $srv-d5pi8dn5c7fs73bngfvg  # METS TON VRAI SERVICE ID ICI
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
           apiKey: ${{ secrets.RENDER_API_KEY }}
-          
-
-
-          
