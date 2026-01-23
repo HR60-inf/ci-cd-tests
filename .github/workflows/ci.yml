@@ -1,12 +1,17 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
+    tags:
+      - 'dev-*'
+      - 'prod-*'
 
 jobs:
+  # TESTS (uniquement sur push de branche)
   test:
+    if: github.event_name != 'push' || github.ref_type != 'tag'
     runs-on: ubuntu-latest
     name: Tests et Validation
 
@@ -29,15 +34,44 @@ jobs:
       - name: Exécuter les tests
         run: npm run test
 
-  deploy:
-    needs: test  # Dépend du job "test"
-    if: success()  # S'exécute seulement si les tests passent
+  # DÉPLOIEMENT MAIN (après tests réussis)
+  deploy-main:
+    needs: test
+    if: github.ref == 'refs/heads/main' && success()
     runs-on: ubuntu-latest
-    name: Déploiement sur Render
+    name: Deploy main to Render
     
     steps:
-      - name: Déclencher le déploiement Render
+      - name: Déployer sur Render
         uses: sws2apps/render-deployment@main
         with:
           serviceId: ${{ secrets.RENDER_SERVICE_ID }}
           apiKey: ${{ secrets.RENDER_API_KEY }}
+
+  # DÉPLOIEMENT TAG DEV (direct, pas de tests)
+  deploy-dev-tag:
+    if: startsWith(github.ref_name, 'dev-')
+    runs-on: ubuntu-latest
+    name: Deploy dev tag to Render
+    
+    steps:
+      - name: Déployer sur Render (dev tag)
+        uses: sws2apps/render-deployment@main
+        with:
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
+          apiKey: ${{ secrets.RENDER_API_KEY }}
+
+  # DÉPLOIEMENT TAG PROD (direct, pas de tests)
+  deploy-prod-tag:
+    if: startsWith(github.ref_name, 'prod-')
+    runs-on: ubuntu-latest
+    name: Deploy prod tag to Railway
+    
+    steps:
+      - name: Déployer sur Railway (prod tag)
+        uses: bervProject/railway-deploy@main
+        with:
+          service: ${{ secrets.RAILWAY_SERVICE_NAME }}
+          detach: false
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
