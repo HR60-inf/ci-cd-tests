@@ -1,14 +1,9 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches:
       - main
-      - 'releases/*'
-
-permissions:
-  contents: read
 
 jobs:
   lint:
@@ -23,7 +18,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Installation des dependances
+      - name: Installation des dépendances
         run: npm install
 
       - name: Executer lint
@@ -31,3 +26,15 @@ jobs:
 
       - name: Executer test
         run: npm run test
+
+  deploy:
+    needs: lint  # Attend que les tests passent
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Déclencher le déploiement Render
+        run: |
+          curl -X POST \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json"
