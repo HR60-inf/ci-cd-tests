@@ -39,5 +39,5 @@ jobs:
       - name: Déclencher le déploiement Render
         uses: sws2apps/render-deployment@main
         with:
-          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
-          apiKey: ${{ secrets.RENDER_API_KEY }}
+          serviceId: ${{ rnd_CrkR7Rbui54ZdbpW59tDBrx54pE0 }}
+          apiKey: ${{ srv-d5pi8dn5c7fs73bngfvg }}
