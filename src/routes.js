@@ -13,20 +13,11 @@ router.get('/time', (req, res) => {
     res.json({ time: new Date().toISOString() })
 })
 
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
 router.get('/welcome', (req, res) => {
   const name = req.query.name || 'Visiteur'
-  const safeName = escapeHtml(name)
-  res.send(`<h1>Bienvenue, ${safeName}</h1>`)
+  res.render('welcome', { name })
 })
+
 
 
 
