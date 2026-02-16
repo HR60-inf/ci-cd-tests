@@ -13,11 +13,23 @@ router.get('/time', (req, res) => {
     res.json({ time: new Date().toISOString() })
 })
 
-router.get('/welcome', (req, res) => { const name = req.query.name || 'Visiteur' // VULNÉRABILITÉ : On renvoie l'input utilisateur sans filtrage res.send(`<h1>Bienvenue, ${name}</h1>`) })
- 
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+router.get('/welcome', (req, res) => {
+  const name = req.query.name || 'Visiteur'
+  const safeName = escapeHtml(name)
+  res.send(`<h1>Bienvenue, ${safeName}</h1>`)
+})
 
 
 
 
 // Exporte le router pour être utilisé dans l'application
-module.exports = router
+module.exports = router;
